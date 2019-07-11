@@ -1,0 +1,120 @@
+Assignment  ???????????????
+Revise
+SF API
+openSession vs getCurrentSession
+Hibernate Session API
+save
+get
+createQuery 
+delete
+
+org.hibernate.query.Query API
+getResultList
+getSingleResult
+-------------------------
+POJO States --summary table
+--------------
+Advanced Hibernate
+Mapping between entities 
+one --one
+one -- many
+many --one
+many --many
+-----------------------------
+eg : Course 1<------>* Student  
+uni-directional / bi-dir
+---------------
+Course POJO --- courseId,name(unique),startDate,endDate,fees
++students(List<Student>)
+
+
+Student POJO -- id,email(unique)
++myCourse(Course)
+
+DB jargon
+parent side table  --dac_courses
+child side table  --- dac_students
+owning side ---having actual mapping info(FK column)
+---dac_students having FK col referencing PK of dac_courses.
+
+inverse side (non-owning side) ---
+dac_courses.
+----------------------
+Regarding org.hibernate.LazyInitializationException
+1. In JPA or hibernate --default fetching policy for Any--To--Many is -- LAZY
+i.e if u try to fetch (using get/load/jpql) Course details(one side details) --hibernate WON't fetch student(many side) details.(Confirm it by looking at select query)
+So in Course object --in place of actual student data from db , its collection of PROXY (=un fetched data from db) is kept.
+-----------------
+If u try to access any un-fetched data (un-inited proxy) from outside the session scope(in detached manner) --- hib throws LazyInitExc
+Triggers -- any-to-many
+load
+Fix
+1. POJO layer soln.
+Change fetcing polic to eager 
+@OneToMany(......,fetch=FetchType.EAGER)
+public List<Student> getStudents(){...}
+---not reco.
+Even if user wants ONLY course details , hib will fetch all associated student details --causing performance hit.
+2. Soln in DAO layer
+--Access the size of collection --from inside session scope.
+Disadv --- complete data fetched using multiple queries(select n+1 problem) 
+
+3. Better alternative --- join fetch
+String jpql="select c from Course c join fetch c.students where c.name=:nm"
+-------------------------
+Value Types
+1. java data types
+optional annotation --@Basic
+eg : Student HAS-A email
+
+2. Embedded types ---UDT --component
+eg : Student HAS-A Address
+Student --entity(@Entity)
+Address --value type (@Embeddable) --no mapping entry in config file.
+
+3. Collection of value types
+3.1 Collection of java types
+eg : Student HAS-A phone numbers
+Annotation -- @ElementCollection
+3.2 Collection of components
+Student HAS-A Vehicles (multiple)
+Annotation -- @ElementCollection
+---------------------
+eg :
+@ElementCollection //MANDATORY
+@CollectionTable //OPTIONAL(name="stud_phones",joinColumns=@JoinColumn(name="s_id"))
+public List<String> getPhoneNumbers() {
+		return phoneNumbers;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Entity Types vs Value Types
+HAS -A relationship between Entity n single valued Embeddable 
+
+HAS -A relationship between Entity n multi valued Embeddables
+
+LazyInitexc ....... 
+
+
+
+
+
+
+
+
+
+
+
+
